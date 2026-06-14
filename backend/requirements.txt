@@ -1,0 +1,16 @@
+# InsureVoice — Python Backend Requirements
+# Install with: pip install -r requirements.txt
+
+# Web framework
+flask==3.0.0
+flask-cors==4.0.0
+
+# NLP / Sentiment Analysis
+textblob==0.18.0
+nltk==3.8.1
+
+# WSGI server (production)
+gunicorn==21.2.0
+
+# Environment variables (optional, for local dev)
+python-dotenv==1.0.0

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Write a Review — InsureVoice</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .review-page { padding: 40px 0 80px; }
+    .review-layout { display: grid; grid-template-columns: 1fr 320px; gap: 28px; align-items: start; }
+    .form-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 36px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .star-section { margin-bottom: 20px; }
+    .star-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--slate-light); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    /* Proof Checkbox — Option 3 */
+    .proof-wrap { display: flex; align-items: flex-start; gap: 14px; cursor: pointer; background: rgba(255,255,255,0.03); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 18px; transition: var(--transition); }
+    .proof-wrap:hover { border-color: rgba(245,158,11,0.4); background: var(--amber-glow); }
+    .proof-wrap.checked { border-color: var(--success); background: rgba(16,185,129,0.06); }
+    .proof-wrap input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--amber); cursor: pointer; flex-shrink: 0; margin-top: 2px; }
+    .proof-text strong { display: block; font-size: 0.92rem; color: var(--white); margin-bottom: 4px; }
+    .proof-text span { font-size: 0.82rem; color: var(--slate); line-height: 1.5; }
+    .verified-note { display: none; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 14px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: var(--radius-sm); font-size: 0.83rem; color: var(--success); }
+    .verified-note.show { display: flex; }
+    /* Sidebar */
+    .sidebar-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; position: sticky; top: 90px; }
+    .sidebar-card h3 { font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 16px; }
+    .tip-item { display: flex; gap: 10px; margin-bottom: 12px; font-size: 0.83rem; color: var(--slate); line-height: 1.5; }
+    .tip-icon { flex-shrink: 0; margin-top: 2px; }
+    .sentiment-preview { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-top: 16px; }
+    .sentiment-preview h3 { font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 700; color: var(--slate); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .sentiment-result { display: flex; align-items: center; gap: 10px; min-height: 28px; }
+    .sentiment-score { font-size: 0.78rem; color: var(--slate); margin-top: 6px; }
+    #charCount { font-size: 0.78rem; color: var(--slate); text-align: right; margin-top: 4px; }
+    @media (max-width: 900px) { .review-layout { grid-template-columns: 1fr; } .sidebar-card { position: static; } .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Insure<span>Voice</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="reviews.html">Reviews</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="review.html" class="active">Write Review</a></li>
+    <li><a href="profile.html">My Profile</a></li>
+  </ul>
+  <div class="nav-actions" id="navActions"></div>
+  <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="container review-page">
+  <div class="page-header" style="padding-bottom:24px;">
+    <h1>Share Your Experience</h1>
+    <p>Your honest review helps others make better insurance decisions.</p>
+  </div>
+
+  <div id="alertBox"></div>
+
+  <div class="review-layout">
+
+    <!-- REVIEW FORM -->
+    <div class="form-card">
+      <h2 style="font-size:1.4rem;margin-bottom:6px;">Write Your Review</h2>
+      <p style="color:var(--slate);font-size:0.88rem;margin-bottom:28px;">All fields marked * are required.</p>
+
+      <form id="reviewForm" novalidate>
+
+        <!-- Company & Policy -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="insCompany">Insurance Company *</label>
+            <select id="insCompany" class="form-control"></select>
+            <div class="form-error" id="companyError">Please select a company.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="policyType">Policy Type *</label>
+            <select id="policyType" class="form-control"></select>
+            <div class="form-error" id="policyError">Please select a policy type.</div>
+          </div>
+        </div>
+
+        <!-- Star Rating -->
+        <div class="star-section">
+          <span class="star-label">Overall Rating *</span>
+          <div class="star-rating">
+            <input type="radio" id="s5" name="rating" value="5" /><label for="s5">★</label>
+            <input type="radio" id="s4" name="rating" value="4" /><label for="s4">★</label>
+            <input type="radio" id="s3" name="rating" value="3" /><label for="s3">★</label>
+            <input type="radio" id="s2" name="rating" value="2" /><label for="s2">★</label>
+            <input type="radio" id="s1" name="rating" value="1" /><label for="s1">★</label>
+          </div>
+          <div class="form-error" id="ratingError">Please select a rating.</div>
+        </div>
+
+        <!-- Claim Status -->
+        <div class="form-group">
+          <label class="form-label">Claim Status *</label>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+              <input type="radio" name="claimStatus" value="Approved" style="accent-color:var(--amber);" />
+              <span class="badge badge-approved">✔ Approved</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+              <input type="radio" name="claimStatus" value="Rejected" style="accent-color:var(--amber);" />
+              <span class="badge badge-rejected">✕ Rejected</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+              <input type="radio" name="claimStatus" value="Delayed" style="accent-color:var(--amber);" />
+              <span class="badge badge-delayed">⏳ Delayed</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+              <input type="radio" name="claimStatus" value="N/A" style="accent-color:var(--amber);" />
+              <span class="badge badge-unverified">— N/A</span>
+            </label>
+          </div>
+          <div class="form-error" id="claimError">Please select claim status.</div>
+        </div>
+
+        <!-- Review Title -->
+        <div class="form-group">
+          <label class="form-label" for="reviewTitle">Review Title *</label>
+          <input type="text" id="reviewTitle" class="form-control"
+                 placeholder="e.g., Claim rejected without valid reason" maxlength="120" />
+          <div class="form-error" id="titleError">Please enter a review title.</div>
+        </div>
+
+        <!-- Review Text -->
+        <div class="form-group">
+          <label class="form-label" for="reviewText">
+            Detailed Review *
+            <span style="font-weight:400;text-transform:none;font-size:0.78rem;color:var(--slate)">(min 30 characters)</span>
+          </label>
+          <textarea id="reviewText" class="form-control" rows="6" maxlength="2000"
+            placeholder="Describe your experience — claim process, customer support quality, transparency, wait times, and any issues faced."></textarea>
+          <div id="charCount">0 / 2000</div>
+          <div class="form-error" id="textError">Please write at least 30 characters.</div>
+        </div>
+
+        <!-- OPTION 3: Honor-system Verified Checkbox (no file upload needed) -->
+        <div class="form-group">
+          <label class="form-label">
+            Proof of Claim
+            <span style="font-weight:400;text-transform:none;color:var(--slate)">(optional — earns Verified badge)</span>
+          </label>
+          <label class="proof-wrap" id="proofLabel">
+            <input type="checkbox" id="hasProof" />
+            <div class="proof-text">
+              <strong>I have a supporting document</strong>
+              <span>
+                e.g. claim approval/rejection letter, policy document, or any written
+                communication from the insurer. Ticking this adds a
+                <strong style="color:var(--success)">✔ Verified</strong> badge to your review.
+              </span>
+            </div>
+          </label>
+          <div class="verified-note" id="verifiedNote">
+            ✔ Your review will display a <strong>Verified</strong> badge. Please ensure you genuinely hold the document.
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full btn-lg" id="submitBtn">
+          🚀 Submit Review
+        </button>
+
+      </form>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div>
+      <div class="sidebar-card">
+        <h3>✍️ Writing Tips</h3>
+        <div class="tip-item"><span class="tip-icon">🎯</span> Be specific — mention the type of claim, timeline, and exactly what went wrong or right.</div>
+        <div class="tip-item"><span class="tip-icon">✅</span> Tick the checkbox if you genuinely hold a claim or rejection letter — earns a Verified badge.</div>
+        <div class="tip-item"><span class="tip-icon">⚖️</span> Stay factual. Personal honest experiences help other readers most.</div>
+        <div class="tip-item"><span class="tip-icon">🔒</span> Never share policy numbers, Aadhaar, PAN, or bank details.</div>
+        <div class="tip-item"><span class="tip-icon">🤖</span> AI will auto-classify your review's sentiment after submission.</div>
+      </div>
+      <div class="sentiment-preview">
+        <h3>🤖 Live Sentiment Preview</h3>
+        <div class="sentiment-result" id="sentimentResult">
+          <span style="color:var(--slate);font-size:0.85rem;">Start typing your review…</span>
+        </div>
+        <div class="sentiment-score" id="sentimentScore"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase SDKs — Storage intentionally removed -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script>
+let currentUser = null;
+
+// Auth guard — redirect to login if not logged in
+requireAuth().then(user => { currentUser = user; }).catch(() => {});
+
+// Populate company and policy dropdowns
+document.addEventListener('DOMContentLoaded', () => {
+  populateSelect('insCompany', INSURANCE_COMPANIES, 'Select company…');
+  populateSelect('policyType', POLICY_TYPES, 'Select policy type…');
+});
+
+// Character count + live sentiment trigger
+document.getElementById('reviewText').addEventListener('input', function () {
+  document.getElementById('charCount').textContent = `${this.value.length} / 2000`;
+  debounceSentiment(this.value);
+});
+
+// Proof checkbox toggle
+document.getElementById('hasProof').addEventListener('change', function () {
+  document.getElementById('proofLabel').classList.toggle('checked', this.checked);
+  document.getElementById('verifiedNote').classList.toggle('show', this.checked);
+});
+
+// Debounced live sentiment preview
+let sentimentTimeout;
+function debounceSentiment(text) {
+  clearTimeout(sentimentTimeout);
+  if (text.length < 10) {
+    document.getElementById('sentimentResult').innerHTML =
+      '<span style="color:var(--slate);font-size:0.85rem;">Type more to preview sentiment…</span>';
+    document.getElementById('sentimentScore').textContent = '';
+    return;
+  }
+  sentimentTimeout = setTimeout(() => analyzeSentimentLive(text), 700);
+}
+
+async function analyzeSentimentLive(text) {
+  const resultEl = document.getElementById('sentimentResult');
+  const scoreEl  = document.getElementById('sentimentScore');
+  resultEl.innerHTML = '<span class="spinner"></span>';
+
+  // Try Python backend first — silently fall back if not running
+  try {
+    const res = await fetch('http://localhost:5000/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+      signal: AbortSignal.timeout(3000),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      resultEl.innerHTML = sentimentBadge(data.sentiment);
+      scoreEl.textContent = `Polarity: ${(data.polarity ?? 0).toFixed(2)}  ·  Subjectivity: ${(data.subjectivity ?? 0).toFixed(2)}`;
+      return;
+    }
+  } catch (_) { /* backend offline — use client fallback below */ }
+
+  const r = clientSentiment(text);
+  resultEl.innerHTML = sentimentBadge(r.sentiment);
+  scoreEl.textContent = `Score: ${r.score >= 0 ? '+' : ''}${r.score} (local keyword analysis)`;
+}
+function clientSentiment(text) {
+  const positiveWords = [
+    'good','great','excellent','amazing','fast',
+    'smooth','helpful','easy','happy','satisfied'
+  ];
+
+  const negativeWords = [
+    'bad','poor','terrible','slow','worst',
+    'fraud','scam','delay','problem','issue'
+  ];
+
+  const lower = text.toLowerCase();
+
+  let score = 0;
+
+  positiveWords.forEach(word => {
+    if (lower.includes(word)) score++;
+  });
+
+  negativeWords.forEach(word => {
+    if (lower.includes(word)) score--;
+  });
+
+  return {
+    sentiment:
+      score > 0 ? 'positive' :
+      score < 0 ? 'negative' :
+      'neutral',
+    score
+  };
+}
+
+// Form validation
+function validateForm() {
+  let ok = true;
+  const show = id => { document.getElementById(id).classList.add('show');    ok = false; };
+  const hide = id => { document.getElementById(id).classList.remove('show'); };
+
+  document.getElementById('insCompany').value                            ? hide('companyError') : show('companyError');
+  document.getElementById('policyType').value                            ? hide('policyError')  : show('policyError');
+  document.querySelector('input[name="rating"]:checked')                 ? hide('ratingError')  : show('ratingError');
+  document.querySelector('input[name="claimStatus"]:checked')            ? hide('claimError')   : show('claimError');
+  document.getElementById('reviewTitle').value.trim()                    ? hide('titleError')   : show('titleError');
+  document.getElementById('reviewText').value.trim().length >= 30        ? hide('textError')    : show('textError');
+  return ok;
+}
+
+// Form submit
+document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
+  if (!currentUser) {
+    showAlert('alertBox', 'error', '❌ Please log in to submit a review.');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  setButtonLoading(btn, true);
+
+  try {
+    const company = document.getElementById('insCompany').value;
+    const policy  = document.getElementById('policyType').value;
+    const rating  = parseInt(document.querySelector('input[name="rating"]:checked').value);
+    const claim   = document.querySelector('input[name="claimStatus"]:checked').value;
+    const title   = document.getElementById('reviewTitle').value.trim();
+    const text    = document.getElementById('reviewText').value.trim();
+
+    // Option 3: verified = checkbox state only, no file upload
+    const verified = document.getElementById('hasProof').checked;
+
+    // Get sentiment from backend or fall back to client keywords
+    let sentiment = 'neutral', polarity = 0, subjectivity = 0;
+    try {
+      const res = await fetch('http://localhost:5000/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+        signal: AbortSignal.timeout(4000),
+      });
+      if (res.ok) {
+        const d  = await res.json();
+        sentiment    = d.sentiment;
+        polarity     = d.polarity     || 0;
+        subjectivity = d.subjectivity || 0;
+      }
+    } catch (_) {
+      sentiment = clientSentiment(text).sentiment;
+    }
+
+    // Save to Firestore — uploadedProofURL is null (Option 3)
+    await db.collection('reviews').add({
+      userId:           currentUser.uid,
+      username:         currentUser.displayName || currentUser.email.split('@')[0],
+      email:            currentUser.email,
+      insuranceCompany: company,
+      policyType:       policy,
+      rating:           rating,
+      reviewTitle:      title,
+      reviewText:       text,
+      claimStatus:      claim,
+      sentiment:        sentiment,
+      polarity:         polarity,
+      subjectivity:     subjectivity,
+      verifiedStatus:   verified,
+      uploadedProofURL: null,
+      helpfulCount:     0,
+      timestamp:        firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Increment user review count
+    // Uses set+merge instead of update — works even if the
+    // users/{uid} document doesn't exist yet (won't crash)
+    await db.collection('users').doc(currentUser.uid).set({
+      reviewCount: firebase.firestore.FieldValue.increment(1),
+    }, { merge: true });
+
+    showAlert('alertBox', 'success', '✅ Review submitted! Redirecting…');
+
+    // Reset form
+    document.getElementById('reviewForm').reset();
+    document.getElementById('charCount').textContent = '0 / 2000';
+    document.getElementById('verifiedNote').classList.remove('show');
+    document.getElementById('proofLabel').classList.remove('checked');
+    document.getElementById('sentimentResult').innerHTML =
+      '<span style="color:var(--slate);font-size:0.85rem;">Start typing your review…</span>';
+    document.getElementById('sentimentScore').textContent = '';
+
+    setTimeout(() => { window.location.href = 'reviews.html'; }, 2000);
+
+  } catch (err) {
+    console.error(err);
+    showAlert('alertBox', 'error', '❌ Failed to submit: ' + err.message);
+  } finally {
+    setButtonLoading(btn, false, '🚀 Submit Review');
+  }
+});
+</script>
+</body>
+</html>

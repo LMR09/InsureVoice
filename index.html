@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InsureVoice — Honest Insurance Reviews</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── Hero Section ── */
+    .hero {
+      padding: 100px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse, rgba(245,158,11,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--amber-glow);
+      border: 1px solid rgba(245,158,11,0.3);
+      color: var(--amber);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: 3.2rem;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero h1 span { color: var(--amber); }
+    .hero p {
+      color: var(--slate);
+      font-size: 1.1rem;
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 420px;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-visual {
+      position: relative;
+    }
+    .review-preview-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .preview-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      transition: var(--transition);
+      animation: floatUp 0.6s ease both;
+    }
+    .preview-card:nth-child(1) { animation-delay: 0.1s; }
+    .preview-card:nth-child(2) { animation-delay: 0.25s; }
+    .preview-card:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes floatUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .preview-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .preview-company { font-weight: 700; font-size: 0.92rem; color: var(--white); }
+    .preview-body { color: var(--slate); font-size: 0.83rem; line-height: 1.5; }
+    /* ── How It Works ── */
+    .how-section { padding: 72px 0; }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .step-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 20px;
+      text-align: center;
+      position: relative;
+    }
+    .step-num {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--amber-glow);
+      border: 2px solid var(--amber);
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .step-icon { font-size: 1.8rem; margin-bottom: 10px; }
+    .step-card h3 { font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
+    .step-card p { color: var(--slate); font-size: 0.83rem; }
+    /* ── Features ── */
+    .features-section { padding: 72px 0; background: var(--surface); }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .feature-card {
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      transition: var(--transition);
+    }
+    .feature-card:hover { border-color: rgba(245,158,11,0.35); transform: translateY(-3px); }
+    .feature-icon {
+      width: 48px; height: 48px;
+      background: var(--amber-glow);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 18px;
+    }
+    .feature-card h3 { font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { color: var(--slate); font-size: 0.87rem; line-height: 1.6; }
+    /* ── CTA Section ── */
+    .cta-section {
+      padding: 80px 24px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, transparent 60%);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .cta-section h2 { font-size: 2.4rem; margin-bottom: 16px; }
+    .cta-section p { color: var(--slate); margin-bottom: 32px; font-size: 1.05rem; }
+    /* ── Stats ── */
+    .stats-section { padding: 60px 0; }
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2.2rem; }
+      .steps { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ NAVBAR ═══════════ -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Insure<span>Voice</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="reviews.html">Reviews</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="review.html">Write Review</a></li>
+    <li><a href="profile.html">My Profile</a></li>
+  </ul>
+  <div class="nav-actions" id="navActions">
+    <a href="login.html"  class="btn btn-outline btn-sm">Login</a>
+    <a href="signup.html" class="btn btn-primary btn-sm">Sign Up</a>
+  </div>
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-label">🛡️ India's Insurance Review Platform</div>
+      <h1>Real Reviews.<br/>Real <span>Insurance</span><br/>Experiences.</h1>
+      <p>
+        Discover genuine customer experiences about insurance claims, hidden conditions,
+        and customer support — powered by AI sentiment analysis.
+      </p>
+      <div class="hero-actions">
+        <a href="reviews.html" class="btn btn-primary btn-lg">Browse Reviews</a>
+        <a href="signup.html"  class="btn btn-outline btn-lg">Share Your Story</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="review-preview-stack">
+        <div class="preview-card">
+          <div class="preview-top">
+            <span class="preview-company">Star Health Insurance</span>
+            <span class="stars-display sm">★★★★★</span>
+          </div>
+          <p class="preview-body">"Claim was processed in 3 days with zero paperwork hassle. Truly impressed."</p>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <span class="badge badge-positive">😊 Positive</span>
+            <span class="badge badge-verified">✔ Verified</span>
+            <span class="badge badge-approved">Approved</span>
+          </div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-top">
+            <span class="preview-company">Bajaj Allianz</span>
+            <span class="stars-display sm">★★☆☆☆</span>
+          </div>
+          <p class="preview-body">"Claim was rejected citing a pre-existing condition that was never mentioned during policy purchase."</p>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <span class="badge badge-negative">😞 Negative</span>
+            <span class="badge badge-rejected">Rejected</span>
+          </div>
+        </div>
+        <div class="preview-card">
+          <div class="preview-top">
+            <span class="preview-company">HDFC ERGO</span>
+            <span class="stars-display sm">★★★☆☆</span>
+          </div>
+          <p class="preview-body">"Average service. Claim took 6 weeks but was eventually approved after several follow-ups."</p>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <span class="badge badge-neutral">😐 Neutral</span>
+            <span class="badge badge-delayed">Delayed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STATS ═══════════ -->
+<section class="stats-section">
+  <div class="container">
+    <div class="grid-4" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-number" id="statReviews">—</div>
+        <div class="stat-label">Total Reviews</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statCompanies">17</div>
+        <div class="stat-label">Companies Covered</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statVerified">—</div>
+        <div class="stat-label">Verified Reviews</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statUsers">—</div>
+        <div class="stat-label">Registered Users</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ HOW IT WORKS ═══════════ -->
+<section class="how-section">
+  <div class="container">
+    <div class="text-center mb-3">
+      <h2 class="section-title">How InsureVoice Works</h2>
+      <p class="section-subtitle">Four simple steps to transparency</p>
+    </div>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-icon">📝</div>
+        <h3>Register Free</h3>
+        <p>Create your account in under a minute using email or Google.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-icon">🗣️</div>
+        <h3>Write a Review</h3>
+        <p>Share your insurance experience — claim outcome, support quality, and more.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-icon">🤖</div>
+        <h3>AI Analyses</h3>
+        <p>Our NLP engine reads your review and classifies the sentiment automatically.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-icon">📊</div>
+        <h3>View Analytics</h3>
+        <p>Browse the dashboard to see aggregated ratings and complaint patterns.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FEATURES ═══════════ -->
+<section class="features-section">
+  <div class="container">
+    <div class="text-center mb-3">
+      <h2 class="section-title">Why InsureVoice?</h2>
+      <p class="section-subtitle">Built to solve the information asymmetry in Indian insurance</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Sentiment Analysis</h3>
+        <p>Every review is automatically analyzed using NLP — classifying it as Positive, Negative, or Neutral to surface real experiences.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✅</div>
+        <h3>Verified Review Badges</h3>
+        <p>Verified Review Badges
+          
+            Users can mark reviews as supported by genuine claim experiences.
+            Verified badges help readers identify trusted feedback.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Analytics Dashboard</h3>
+        <p>Visual charts show average ratings, most complained companies, claim status distributions, and sentiment trends.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Smart Search & Filter</h3>
+        <p>Find reviews by company, policy type, rating, or sentiment in real-time to make informed insurance decisions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Secure & Private</h3>
+        <p>Firebase Authentication ensures your account is secure. Your personal data is never sold or shared.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Mobile Friendly</h3>
+        <p>InsureVoice works seamlessly on phones, tablets, and desktops — review and research from anywhere.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ CTA ═══════════ -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Had an insurance experience?<br/>Share it. Help others.</h2>
+    <p>Your review could save someone from a bad policy decision.</p>
+    <a href="signup.html" class="btn btn-primary btn-lg">Get Started Free →</a>
+  </div>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">Insure<span>Voice</span></div>
+      <p class="footer-desc">India's AI-powered insurance review platform. Bringing transparency, trust, and real data to insurance decisions.</p>
+    </div>
+    <div>
+      <div class="footer-heading">Platform</div>
+      <ul class="footer-links">
+        <li><a href="reviews.html">Browse Reviews</a></li>
+        <li><a href="review.html">Write a Review</a></li>
+        <li><a href="dashboard.html">Analytics</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">Account</div>
+      <ul class="footer-links">
+        <li><a href="signup.html">Sign Up</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li>
+          <a href="profile.html">My Profile</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2024 InsureVoice · Built for Final Year Engineering Project · Powered by Firebase + AI
+  </div>
+</footer>
+
+<!-- ═══════════ FIREBASE SDKs ═══════════ -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  // Load homepage stats
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const snap = await db.collection('reviews').get();
+      document.getElementById('statReviews').textContent = snap.size;
+      const verified = snap.docs.filter(d => d.data().verifiedStatus).length;
+      document.getElementById('statVerified').textContent = verified;
+    } catch(e) { /* Firebase not configured yet */ }
+
+    try {
+      const users = await db.collection('users').get();
+      document.getElementById('statUsers').textContent = users.size;
+    } catch(e) {}
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // USERS — each user reads/writes only their own profile
+    match /users/{userId} {
+      allow read:   if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // REVIEWS — anyone can read; only logged-in users can create
+    match /reviews/{reviewId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasAll([
+             'userId','username','insuranceCompany','policyType',
+             'rating','reviewText','claimStatus','sentiment',
+             'verifiedStatus','timestamp'
+           ])
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.reviewText.size() >= 30;
+
+      // Author can update/delete; anyone can increment helpfulCount
+      allow update: if request.auth != null
+        && (resource.data.userId == request.auth.uid
+            || request.resource.data.diff(resource.data)
+               .affectedKeys().hasOnly(['helpfulCount']));
+
+      allow delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+  }
+}

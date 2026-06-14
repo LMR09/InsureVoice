@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up — InsureVoice</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(245,158,11,0.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 20%, rgba(59,130,246,0.05) 0%, transparent 50%);
+    }
+    .auth-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--shadow-lg);
+    }
+    .auth-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .auth-logo span { color: var(--amber); }
+    .auth-tagline {
+      text-align: center;
+      color: var(--slate);
+      font-size: 0.88rem;
+      margin-bottom: 32px;
+    }
+    .auth-title {
+      font-size: 1.5rem;
+      text-align: center;
+      margin-bottom: 24px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+    }
+    .divider-or {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--slate);
+      font-size: 0.8rem;
+    }
+    .divider-or::before, .divider-or::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 11px;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-google:hover {
+      border-color: #4285F4;
+      background: rgba(66,133,244,0.08);
+    }
+    .btn-google img { width: 18px; height: 18px; }
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      color: var(--slate);
+      font-size: 0.88rem;
+    }
+    .password-wrapper {
+      position: relative;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--slate);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 4px;
+    }
+    .strength-bar {
+      height: 4px;
+      border-radius: 2px;
+      margin-top: 8px;
+      background: var(--border);
+      overflow: hidden;
+    }
+    .strength-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: var(--transition);
+      width: 0%;
+    }
+    .strength-text {
+      font-size: 0.75rem;
+      margin-top: 4px;
+    }
+    #alertBox { min-height: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="auth-page">
+  <div class="auth-card">
+
+    <div class="auth-logo">Insure<span>Voice</span></div>
+    <div class="auth-tagline">India's Insurance Transparency Platform</div>
+
+    <div class="auth-title">Create Account</div>
+
+    <!-- Google Sign Up -->
+    <button class="btn-google" id="googleSignup">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+      Continue with Google
+    </button>
+
+    <div class="divider-or">or</div>
+
+    <!-- Alert Box -->
+    <div id="alertBox"></div>
+
+    <!-- Sign Up Form -->
+    <form id="signupForm" novalidate>
+
+      <div class="form-group">
+        <label class="form-label" for="fullName">Full Name</label>
+        <input type="text" id="fullName" class="form-control"
+               placeholder="Enter your full name" autocomplete="name" />
+        <div class="form-error" id="nameError">Please enter your full name.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input type="email" id="email" class="form-control"
+               placeholder="you@example.com" autocomplete="email" />
+        <div class="form-error" id="emailError">Please enter a valid email address.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="password" class="form-control"
+                 placeholder="Minimum 6 characters" autocomplete="new-password" />
+          <button type="button" class="password-toggle" id="togglePwd">👁</button>
+        </div>
+        <div class="strength-bar">
+          <div class="strength-fill" id="strengthFill"></div>
+        </div>
+        <div class="strength-text text-slate" id="strengthText"></div>
+        <div class="form-error" id="pwdError">Password must be at least 6 characters.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirmPwd">Confirm Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="confirmPwd" class="form-control"
+                 placeholder="Re-enter your password" autocomplete="new-password" />
+          <button type="button" class="password-toggle" id="toggleConfirm">👁</button>
+        </div>
+        <div class="form-error" id="confirmError">Passwords do not match.</div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full btn-lg" id="signupBtn">
+        Create My Account
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="login.html">Sign in here</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  // ── Password Visibility Toggles ──
+  document.getElementById('togglePwd').addEventListener('click', () => {
+    const p = document.getElementById('password');
+    p.type = p.type === 'password' ? 'text' : 'password';
+  });
+  document.getElementById('toggleConfirm').addEventListener('click', () => {
+    const p = document.getElementById('confirmPwd');
+    p.type = p.type === 'password' ? 'text' : 'password';
+  });
+
+  // ── Password Strength Meter ──
+  document.getElementById('password').addEventListener('input', function () {
+    const val = this.value;
+    const fill = document.getElementById('strengthFill');
+    const text = document.getElementById('strengthText');
+    let score = 0;
+    if (val.length >= 6)  score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const levels = [
+      { w: '20%', color: '#EF4444', label: 'Very Weak' },
+      { w: '40%', color: '#F59E0B', label: 'Weak' },
+      { w: '60%', color: '#EAB308', label: 'Fair' },
+      { w: '80%', color: '#22C55E', label: 'Strong' },
+      { w: '100%',color: '#10B981', label: 'Very Strong' },
+    ];
+    const level = levels[Math.min(score - 1, 4)] || { w: '0%', color: '', label: '' };
+    fill.style.width = level.w;
+    fill.style.background = level.color;
+    text.textContent = val.length ? level.label : '';
+    text.style.color = level.color;
+  });
+
+  // ── Form Validation Helper ──
+  function validate() {
+    let ok = true;
+    const name    = document.getElementById('fullName').value.trim();
+    const email   = document.getElementById('email').value.trim();
+    const pwd     = document.getElementById('password').value;
+    const confirm = document.getElementById('confirmPwd').value;
+
+    // Name
+    const nameErr = document.getElementById('nameError');
+    if (!name) { nameErr.classList.add('show'); ok = false; }
+    else nameErr.classList.remove('show');
+
+    // Email
+    const emailErr = document.getElementById('emailError');
+    const emailRe  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRe.test(email)) { emailErr.classList.add('show'); ok = false; }
+    else emailErr.classList.remove('show');
+
+    // Password
+    const pwdErr = document.getElementById('pwdError');
+    if (pwd.length < 6) { pwdErr.classList.add('show'); ok = false; }
+    else pwdErr.classList.remove('show');
+
+    // Confirm
+    const confirmErr = document.getElementById('confirmError');
+    if (pwd !== confirm) { confirmErr.classList.add('show'); ok = false; }
+    else confirmErr.classList.remove('show');
+
+    return { ok, name, email, pwd };
+  }
+
+  // ── Email/Password Signup ──
+  document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const { ok, name, email, pwd } = validate();
+    if (!ok) return;
+
+    const btn = document.getElementById('signupBtn');
+    setButtonLoading(btn, true);
+
+    try {
+      // 1. Create Auth user
+      const cred = await auth.createUserWithEmailAndPassword(email, pwd);
+
+      // 2. Update display name
+      await cred.user.updateProfile({ displayName: name });
+
+      // 3. Store user document in Firestore
+      await db.collection('users').doc(cred.user.uid).set({
+        uid:       cred.user.uid,
+        name:      name,
+        email:     email,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        reviewCount: 0,
+      });
+
+      showAlert('alertBox', 'success', '✅ Account created! Redirecting…');
+      setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+
+    } catch (err) {
+      const msgs = {
+        'auth/email-already-in-use': 'This email is already registered. Try logging in.',
+        'auth/invalid-email':        'Invalid email address format.',
+        'auth/weak-password':        'Password is too weak. Use at least 6 characters.',
+      };
+      showAlert('alertBox', 'error', '❌ ' + (msgs[err.code] || err.message));
+      setButtonLoading(btn, false, 'Create My Account');
+    }
+  });
+
+  // ── Google Sign Up ──
+  document.getElementById('googleSignup').addEventListener('click', async () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+      const result = await auth.signInWithPopup(provider);
+      const user   = result.user;
+
+      // Store/update Firestore user doc
+      await db.collection('users').doc(user.uid).set({
+        uid:         user.uid,
+        name:        user.displayName || '',
+        email:       user.email,
+        createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
+        reviewCount: 0,
+      }, { merge: true });
+
+      window.location.href = 'index.html';
+    } catch (err) {
+      if (err.code === 'auth/account-exists-with-different-credential') {
+        showAlert('alertBox', 'error',
+          '❌ An account already exists with this email using a password. Please sign in with your email and password instead, or use "Forgot password" if needed.');
+      } else {
+        showAlert('alertBox', 'error', '❌ Google sign-in failed: ' + err.message);
+      }
+    }
+  });
+
+  // ── Redirect if already logged in ──
+  auth.onAuthStateChanged((user) => {
+    if (user) window.location.href = 'index.html';
+  });
+</script>
+</body>
+</html>

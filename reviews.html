@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse Reviews — InsureVoice</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .reviews-page { padding: 40px 0 80px; }
+
+    /* ── Search Bar ── */
+    .search-bar-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      margin-bottom: 28px;
+    }
+    .search-input-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .search-input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+    .search-icon {
+      position: absolute;
+      left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--slate); font-size: 1rem; pointer-events: none;
+    }
+    #searchInput {
+      padding-left: 42px;
+    }
+    .filter-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-label { font-size: 0.78rem; color: var(--slate); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .filter-selects { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .filter-selects select {
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition);
+    }
+    .filter-selects select:focus { border-color: var(--amber); }
+    .filter-selects select option { background: var(--navy-mid); }
+
+    /* ── Reviews Grid ── */
+    .reviews-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .reviews-count { font-size: 0.9rem; color: var(--slate); }
+    .reviews-count strong { color: var(--white); }
+    .sort-select {
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+    }
+    .sort-select option { background: var(--navy-mid); }
+
+    #reviewsGrid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    /* ── Review Card Extras ── */
+    .review-card-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .review-policy-tag {
+      font-size: 0.75rem;
+      color: var(--slate);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .helpful-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--slate);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .helpful-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 40px;
+    }
+    .page-btn {
+      width: 38px; height: 38px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--slate);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .page-btn:hover, .page-btn.active {
+      border-color: var(--amber);
+      color: var(--amber);
+      background: var(--amber-glow);
+    }
+    .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* ── Expand Review ── */
+    .review-text.expanded { -webkit-line-clamp: unset; }
+    .read-more {
+      background: none; border: none;
+      color: var(--amber); font-size: 0.82rem;
+      cursor: pointer; padding: 4px 0;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    @media (max-width: 768px) {
+      #reviewsGrid { grid-template-columns: 1fr; }
+      .search-input-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Insure<span>Voice</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="reviews.html" class="active">Reviews</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="review.html">Write Review</a></li>
+    <li><a href="profile.html">My Profile</a></li>
+  </ul>
+  <div class="nav-actions" id="navActions"></div>
+  <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="container reviews-page">
+
+  <div class="page-header" style="padding-bottom:24px;">
+    <h1>Insurance Reviews</h1>
+    <p>Read real customer experiences — unfiltered and AI-analyzed.</p>
+  </div>
+
+  <!-- ── Search & Filter Bar ── -->
+  <div class="search-bar-wrap">
+    <div class="search-input-row">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="form-control"
+               placeholder="Search by company, policy, or keyword…" />
+      </div>
+      <button class="btn btn-primary" id="searchBtn">Search</button>
+      <button class="btn btn-outline" id="clearBtn">Clear</button>
+    </div>
+
+    <div class="filter-chips">
+      <span class="filter-label">Sentiment:</span>
+      <button class="chip active" data-filter="sentiment" data-value="">All</button>
+      <button class="chip" data-filter="sentiment" data-value="positive">😊 Positive</button>
+      <button class="chip" data-filter="sentiment" data-value="negative">😞 Negative</button>
+      <button class="chip" data-filter="sentiment" data-value="neutral">😐 Neutral</button>
+    </div>
+
+    <div class="filter-selects">
+      <select id="filterCompany">
+        <option value="">All Companies</option>
+      </select>
+      <select id="filterPolicy">
+        <option value="">All Policies</option>
+      </select>
+      <select id="filterClaim">
+        <option value="">All Claim Statuses</option>
+        <option value="Approved">Approved</option>
+        <option value="Rejected">Rejected</option>
+        <option value="Delayed">Delayed</option>
+      </select>
+      <select id="filterRating">
+        <option value="">All Ratings</option>
+        <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
+        <option value="4">⭐⭐⭐⭐ 4+ Stars</option>
+        <option value="3">⭐⭐⭐ 3+ Stars</option>
+        <option value="2">⭐⭐ 2 Stars</option>
+        <option value="1">⭐ 1 Star</option>
+      </select>
+      <select id="filterVerified">
+        <option value="">All Reviews</option>
+        <option value="true">✔ Verified Only</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ── Results Header ── -->
+  <div class="reviews-header">
+    <div class="reviews-count">Showing <strong id="countDisplay">0</strong> reviews</div>
+    <select class="sort-select" id="sortSelect">
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+      <option value="rating-high">Rating: High to Low</option>
+      <option value="rating-low">Rating: Low to High</option>
+    </select>
+  </div>
+
+  <!-- ── Reviews Grid ── -->
+  <div id="reviewsGrid">
+    <div class="empty-state" style="grid-column:1/-1;">
+      <div class="empty-icon">⏳</div>
+      <h3>Loading reviews…</h3>
+    </div>
+  </div>
+
+  <!-- ── Pagination ── -->
+  <div class="pagination" id="pagination"></div>
+
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  const PAGE_SIZE  = 8;
+  let allReviews   = [];
+  let filtered     = [];
+  let currentPage  = 1;
+  let activeSentiment = '';
+
+  // ── Populate filter dropdowns ──
+  document.addEventListener('DOMContentLoaded', () => {
+    populateSelect('filterCompany', INSURANCE_COMPANIES, 'All Companies');
+    populateSelect('filterPolicy',  POLICY_TYPES,        'All Policies');
+    loadReviews();
+  });
+
+  // ── Load all reviews from Firestore ──
+  async function loadReviews() {
+    try {
+      const snap = await db.collection('reviews')
+        .orderBy('timestamp', 'desc')
+        .get();
+      allReviews = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      applyFilters();
+    } catch (err) {
+      document.getElementById('reviewsGrid').innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <div class="empty-icon">⚠️</div>
+          <h3>Could not load reviews</h3>
+          <p>Please configure Firebase or check your connection.</p>
+        </div>`;
+    }
+  }
+
+  // ── Apply All Filters ──
+  function applyFilters() {
+    const query    = document.getElementById('searchInput').value.toLowerCase().trim();
+    const company  = document.getElementById('filterCompany').value;
+    const policy   = document.getElementById('filterPolicy').value;
+    const claim    = document.getElementById('filterClaim').value;
+    const ratingV  = document.getElementById('filterRating').value;
+    const verified = document.getElementById('filterVerified').value;
+    const sort     = document.getElementById('sortSelect').value;
+
+    filtered = allReviews.filter(r => {
+      if (query && !(
+        r.insuranceCompany?.toLowerCase().includes(query) ||
+        r.policyType?.toLowerCase().includes(query)       ||
+        r.reviewText?.toLowerCase().includes(query)       ||
+        r.reviewTitle?.toLowerCase().includes(query)
+      )) return false;
+      if (activeSentiment && r.sentiment?.toLowerCase() !== activeSentiment) return false;
+      if (company  && r.insuranceCompany !== company) return false;
+      if (policy   && r.policyType !== policy)        return false;
+      if (claim    && r.claimStatus !== claim)        return false;
+      if (ratingV) {
+        const minR = parseInt(ratingV);
+        if (minR === 5 && r.rating !== 5) return false;
+        if (minR < 5  && r.rating < minR) return false;
+      }
+      if (verified && !r.verifiedStatus) return false;
+      return true;
+    });
+
+    // Sort
+    filtered.sort((a, b) => {
+      if (sort === 'newest')      return (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0);
+      if (sort === 'oldest')      return (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0);
+      if (sort === 'rating-high') return (b.rating || 0) - (a.rating || 0);
+      if (sort === 'rating-low')  return (a.rating || 0) - (b.rating || 0);
+      return 0;
+    });
+
+    currentPage = 1;
+    renderPage();
+  }
+
+  // ── Render Page ──
+  function renderPage() {
+    const grid  = document.getElementById('reviewsGrid');
+    const total = filtered.length;
+    document.getElementById('countDisplay').textContent = total;
+
+    if (total === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <div class="empty-icon">🔎</div>
+          <h3>No reviews found</h3>
+          <p>Try adjusting your search or filters.</p>
+        </div>`;
+      document.getElementById('pagination').innerHTML = '';
+      return;
+    }
+
+    const start   = (currentPage - 1) * PAGE_SIZE;
+    const pageData = filtered.slice(start, start + PAGE_SIZE);
+
+    grid.innerHTML = pageData.map(r => buildReviewCard(r)).join('');
+    renderPagination(total);
+    attachReadMore();
+    attachHelpful();
+  }
+
+  function buildReviewCard(r) {
+    return `
+    <div class="review-card" id="rc-${r.id}">
+      <div class="review-card-header">
+        <div>
+          <div class="review-company">${r.insuranceCompany || '—'}</div>
+          <div class="review-title">${r.reviewTitle || ''}</div>
+        </div>
+        <div class="stars-display">${starsHTML(r.rating || 0)}</div>
+      </div>
+      <div class="review-card-badges">
+        ${sentimentBadge(r.sentiment)}
+        ${claimBadge(r.claimStatus)}
+        ${verifiedBadge(r.verifiedStatus)}
+        <span class="review-policy-tag">📋 ${r.policyType || '—'}</span>
+      </div>
+      <p class="review-text" id="rt-${r.id}">${r.reviewText || ''}</p>
+      <button class="read-more" data-id="${r.id}">Read more ▾</button>
+      ${r.uploadedProofURL ? `<div style="margin-top:8px;"><a href="${r.uploadedProofURL}" target="_blank" class="btn btn-outline btn-sm">📎 View Proof</a></div>` : ''}
+      <div class="review-footer">
+        <div class="review-author">
+          <span>👤</span>
+          <span>${r.username || 'Anonymous'}</span>
+          <span>·</span>
+          <span>${relativeTime(r.timestamp)}</span>
+        </div>
+        <button class="helpful-btn" data-id="${r.id}">
+          👍 Helpful <span class="helpful-count">${r.helpfulCount || 0}</span>
+        </button>
+      </div>
+    </div>`;
+  }
+
+  function renderPagination(total) {
+    const pages   = Math.ceil(total / PAGE_SIZE);
+    const pagEl   = document.getElementById('pagination');
+    if (pages <= 1) { pagEl.innerHTML = ''; return; }
+    let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+    for (let i = 1; i <= pages; i++) {
+      html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    }
+    html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
+    pagEl.innerHTML = html;
+  }
+
+  function goPage(n) {
+    const pages = Math.ceil(filtered.length / PAGE_SIZE);
+    if (n < 1 || n > pages) return;
+    currentPage = n;
+    renderPage();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Read More ──
+  function attachReadMore() {
+    document.querySelectorAll('.read-more').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.dataset.id;
+        const el = document.getElementById('rt-' + id);
+        el.classList.toggle('expanded');
+        this.textContent = el.classList.contains('expanded') ? 'Show less ▴' : 'Read more ▾';
+      });
+    });
+  }
+
+  // ── Helpful ──
+  function attachHelpful() {
+    document.querySelectorAll('.helpful-btn').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        const id = this.dataset.id;
+        try {
+          await db.collection('reviews').doc(id).update({
+            helpfulCount: firebase.firestore.FieldValue.increment(1),
+          });
+          const countEl = this.querySelector('.helpful-count');
+          countEl.textContent = parseInt(countEl.textContent) + 1;
+          this.style.color = 'var(--amber)';
+          this.style.borderColor = 'var(--amber)';
+          this.disabled = true;
+        } catch (_) {}
+      });
+    });
+  }
+
+  // ── Sentiment Chip Filters ──
+  document.querySelectorAll('.chip[data-filter="sentiment"]').forEach(chip => {
+    chip.addEventListener('click', function() {
+      document.querySelectorAll('.chip[data-filter="sentiment"]').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      activeSentiment = this.dataset.value;
+      applyFilters();
+    });
+  });
+
+  // ── Event Listeners for all filters ──
+  ['filterCompany','filterPolicy','filterClaim','filterRating','filterVerified','sortSelect'].forEach(id => {
+    document.getElementById(id).addEventListener('change', applyFilters);
+  });
+  document.getElementById('searchBtn').addEventListener('click', applyFilters);
+  document.getElementById('searchInput').addEventListener('keyup', (e) => { if (e.key === 'Enter') applyFilters(); });
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('filterCompany').value = '';
+    document.getElementById('filterPolicy').value  = '';
+    document.getElementById('filterClaim').value   = '';
+    document.getElementById('filterRating').value  = '';
+    document.getElementById('filterVerified').value = '';
+    document.getElementById('sortSelect').value    = 'newest';
+    activeSentiment = '';
+    document.querySelectorAll('.chip[data-filter="sentiment"]').forEach((c,i) => {
+      c.classList.toggle('active', i === 0);
+    });
+    applyFilters();
+  });
+</script>
+</body>
+</html>

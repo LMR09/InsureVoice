@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics Dashboard — InsureVoice</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .dash-page { padding: 40px 0 80px; }
+    /* KPI Row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::after {
+      content: attr(data-icon);
+      position: absolute;
+      right: 16px; bottom: 10px;
+      font-size: 2.4rem;
+      opacity: 0.15;
+    }
+    .kpi-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--amber);
+      line-height: 1;
+    }
+    .kpi-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--slate);
+      margin-top: 8px;
+    }
+    .kpi-change {
+      font-size: 0.8rem;
+      margin-top: 6px;
+    }
+    /* Chart Grid */
+    .charts-grid-main {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .charts-grid-secondary {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .chart-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--slate);
+      margin-bottom: 20px;
+    }
+    .chart-wrapper {
+      position: relative;
+      height: 260px;
+    }
+    .chart-wrapper.tall { height: 300px; }
+    /* Top Complaints Table */
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .complaints-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .complaints-table th {
+      text-align: left;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--slate);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .complaints-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(148,163,184,0.08);
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+    .complaints-table tr:last-child td { border-bottom: none; }
+    .complaints-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .rating-bar-wrap { display: flex; align-items: center; gap: 10px; }
+    .rating-bar-track {
+      flex: 1; height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px; overflow: hidden;
+    }
+    .rating-bar-fill {
+      height: 100%; border-radius: 3px;
+      background: var(--amber);
+      transition: width 1s ease;
+    }
+    /* Rank badge */
+    .rank-badge {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .rank-1 { background: rgba(245,158,11,0.2); color: var(--amber); }
+    .rank-2 { background: rgba(148,163,184,0.15); color: var(--slate-light); }
+    .rank-3 { background: rgba(217,119,6,0.15); color: #CD7F32; }
+    .rank-n { background: rgba(255,255,255,0.05); color: var(--slate); }
+
+    /* Loading state */
+    .loading-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(22,40,64,0.6);
+      border-radius: var(--radius);
+      z-index: 10;
+    }
+
+    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 900px)  {
+      .charts-grid-main { grid-template-columns: 1fr; }
+      .charts-grid-secondary { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px)  { .kpi-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Insure<span>Voice</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="reviews.html">Reviews</a></li>
+    <li><a href="dashboard.html" class="active">Dashboard</a></li>
+    <li><a href="review.html">Write Review</a></li>
+    <li><a href="profile.html">My Profile</a></li>
+  </ul>
+  <div class="nav-actions" id="navActions"></div>
+  <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="container dash-page">
+
+  <div class="page-header" style="padding-bottom:24px;">
+    <h1>Analytics Dashboard</h1>
+    <p>Real-time insights from insurance reviews across India.</p>
+  </div>
+
+  <!-- ═══ KPI ROW ═══ -->
+  <div class="kpi-grid">
+    <div class="kpi-card" data-icon="📝">
+      <div class="kpi-value" id="kpiTotal">—</div>
+      <div class="kpi-label">Total Reviews</div>
+    </div>
+    <div class="kpi-card" data-icon="⭐">
+      <div class="kpi-value" id="kpiAvgRating">—</div>
+      <div class="kpi-label">Avg Platform Rating</div>
+    </div>
+    <div class="kpi-card" data-icon="✅">
+      <div class="kpi-value" id="kpiVerified">—</div>
+      <div class="kpi-label">Verified Reviews</div>
+    </div>
+    <div class="kpi-card" data-icon="😞">
+      <div class="kpi-value" id="kpiNegative">—</div>
+      <div class="kpi-label">Negative Sentiments</div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN CHARTS ═══ -->
+  <div class="charts-grid-main">
+    <!-- Company Ratings Bar Chart -->
+    <div class="chart-card">
+      <div class="chart-title">📊 Average Rating by Company</div>
+      <div class="chart-wrapper tall">
+        <canvas id="companyRatingChart"></canvas>
+      </div>
+    </div>
+    <!-- Sentiment Pie -->
+    <div class="chart-card">
+      <div class="chart-title">🧠 Sentiment Distribution</div>
+      <div class="chart-wrapper" style="height:220px;">
+        <canvas id="sentimentChart"></canvas>
+      </div>
+      <div id="sentimentLegend" style="margin-top:16px;display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+  </div>
+
+  <!-- ═══ SECONDARY CHARTS ═══ -->
+  <div class="charts-grid-secondary">
+    <!-- Claim Status Doughnut -->
+    <div class="chart-card">
+      <div class="chart-title">📋 Claim Status Split</div>
+      <div class="chart-wrapper" style="height:220px;">
+        <canvas id="claimChart"></canvas>
+      </div>
+    </div>
+    <!-- Rating Distribution -->
+    <div class="chart-card">
+      <div class="chart-title">⭐ Rating Distribution</div>
+      <div class="chart-wrapper" style="height:220px;">
+        <canvas id="ratingDistChart"></canvas>
+      </div>
+    </div>
+    <!-- Monthly Reviews -->
+    <div class="chart-card">
+      <div class="chart-title">📅 Reviews Over Time</div>
+      <div class="chart-wrapper" style="height:220px;">
+        <canvas id="timelineChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TOP COMPLAINTS TABLE ═══ -->
+  <div class="table-card">
+    <div class="chart-title">🚨 Most Complained Companies</div>
+    <table class="complaints-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Company</th>
+          <th>Total Reviews</th>
+          <th>Avg Rating</th>
+          <th>Claim Rejections</th>
+          <th>Negative %</th>
+        </tr>
+      </thead>
+      <tbody id="complaintsTable">
+        <tr><td colspan="6" style="text-align:center;color:var(--slate);padding:32px;">Loading data…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Firebase + Chart.js -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="firebase/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script>
+// ── Chart.js global defaults ──
+Chart.defaults.color          = '#94A3B8';
+Chart.defaults.font.family    = "'DM Sans', sans-serif";
+Chart.defaults.borderColor    = 'rgba(148,163,184,0.1)';
+
+const AMBER   = '#F59E0B';
+const SUCCESS = '#10B981';
+const DANGER  = '#EF4444';
+const INFO    = '#3B82F6';
+const PURPLE  = '#8B5CF6';
+
+let reviews = [];
+
+// ── Load Data ──
+async function loadDashboard() {
+  try {
+    const snap = await db.collection('reviews').get();
+    reviews    = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    buildKPIs();
+    buildCompanyRatingChart();
+    buildSentimentChart();
+    buildClaimChart();
+    buildRatingDistChart();
+    buildTimelineChart();
+    buildComplaintsTable();
+  } catch (err) {
+    // Show demo data if Firebase not yet configured
+    console.warn('Firebase not configured — showing demo data');
+    reviews = getDemoData();
+    buildKPIs();
+    buildCompanyRatingChart();
+    buildSentimentChart();
+    buildClaimChart();
+    buildRatingDistChart();
+    buildTimelineChart();
+    buildComplaintsTable();
+  }
+}
+
+// ── Demo Data ──
+function getDemoData() {
+  const companies = ['Star Health Insurance','Bajaj Allianz','HDFC ERGO','LIC (Life Insurance Corporation)','ICICI Lombard','Niva Bupa (Max Bupa)'];
+  const sentiments = ['positive','negative','neutral'];
+  const claims     = ['Approved','Rejected','Delayed'];
+  const data = [];
+  companies.forEach((c, ci) => {
+    for (let i = 0; i < 12 + ci * 3; i++) {
+      const monthsAgo = Math.floor(Math.random() * 6);
+      const d = new Date(); d.setMonth(d.getMonth() - monthsAgo);
+      data.push({
+        insuranceCompany: c,
+        rating: Math.max(1, Math.min(5, Math.round(3 + (Math.random()*2 - 1) - ci*0.2))),
+        sentiment: sentiments[Math.floor(Math.random() * 3)],
+        claimStatus: claims[Math.floor(Math.random() * 3)],
+        verifiedStatus: Math.random() > 0.4,
+        timestamp: { toDate: () => d, seconds: Math.floor(d.getTime()/1000) },
+      });
+    }
+  });
+  return data;
+}
+
+// ── KPIs ──
+function buildKPIs() {
+  const total     = reviews.length;
+  const avgRating = total ? (reviews.reduce((s,r) => s + (r.rating||0), 0) / total).toFixed(1) : '—';
+  const verified  = reviews.filter(r => r.verifiedStatus).length;
+  const negative  = reviews.filter(r => r.sentiment?.toLowerCase() === 'negative').length;
+  document.getElementById('kpiTotal').textContent    = total;
+  document.getElementById('kpiAvgRating').textContent = avgRating + ' ⭐';
+  document.getElementById('kpiVerified').textContent  = verified;
+  document.getElementById('kpiNegative').textContent  = negative;
+}
+
+// ── Company Rating Bar Chart ──
+function buildCompanyRatingChart() {
+  const map = {};
+  reviews.forEach(r => {
+    if (!r.insuranceCompany) return;
+    if (!map[r.insuranceCompany]) map[r.insuranceCompany] = { sum: 0, count: 0 };
+    map[r.insuranceCompany].sum   += r.rating || 0;
+    map[r.insuranceCompany].count += 1;
+  });
+  const entries = Object.entries(map)
+    .map(([k,v]) => ({ name: k.split('(')[0].trim(), avg: parseFloat((v.sum/v.count).toFixed(2)) }))
+    .sort((a,b) => b.avg - a.avg)
+    .slice(0, 10);
+
+  const colors = entries.map(e => e.avg >= 4 ? 'rgba(16,185,129,0.75)' : e.avg >= 3 ? 'rgba(245,158,11,0.75)' : 'rgba(239,68,68,0.75)');
+
+  new Chart(document.getElementById('companyRatingChart'), {
+    type: 'bar',
+    data: {
+      labels: entries.map(e => e.name),
+      datasets: [{
+        label: 'Avg Rating',
+        data: entries.map(e => e.avg),
+        backgroundColor: colors,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { min: 0, max: 5, grid: { color: 'rgba(148,163,184,0.08)' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// ── Sentiment Pie ──
+function buildSentimentChart() {
+  const counts = { positive: 0, negative: 0, neutral: 0 };
+  reviews.forEach(r => {
+    const s = r.sentiment?.toLowerCase();
+    if (counts[s] !== undefined) counts[s]++;
+  });
+  const total = reviews.length || 1;
+
+  new Chart(document.getElementById('sentimentChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Positive', 'Negative', 'Neutral'],
+      datasets: [{
+        data: [counts.positive, counts.negative, counts.neutral],
+        backgroundColor: ['rgba(16,185,129,0.8)', 'rgba(239,68,68,0.8)', 'rgba(245,158,11,0.8)'],
+        borderColor: 'var(--card)',
+        borderWidth: 3,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` ${ctx.label}: ${ctx.raw} (${((ctx.raw/total)*100).toFixed(1)}%)`
+          }
+        }
+      },
+      cutout: '68%',
+    }
+  });
+
+  const legend = document.getElementById('sentimentLegend');
+  const items  = [
+    { color: '#10B981', label: 'Positive', count: counts.positive },
+    { color: '#EF4444', label: 'Negative', count: counts.negative },
+    { color: '#F59E0B', label: 'Neutral',  count: counts.neutral  },
+  ];
+  legend.innerHTML = items.map(i => `
+    <div style="display:flex;align-items:center;justify-content:space-between;font-size:0.83rem;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="width:10px;height:10px;border-radius:50%;background:${i.color};display:inline-block;"></span>
+        <span style="color:var(--slate-light)">${i.label}</span>
+      </div>
+      <span style="color:var(--white);font-weight:600;">${i.count} <span style="color:var(--slate);font-weight:400;">(${((i.count/total)*100).toFixed(0)}%)</span></span>
+    </div>`).join('');
+}
+
+// ── Claim Status Doughnut ──
+function buildClaimChart() {
+  const counts = { Approved: 0, Rejected: 0, Delayed: 0 };
+  reviews.forEach(r => { if (counts[r.claimStatus] !== undefined) counts[r.claimStatus]++; });
+
+  new Chart(document.getElementById('claimChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Approved', 'Rejected', 'Delayed'],
+      datasets: [{
+        data: [counts.Approved, counts.Rejected, counts.Delayed],
+        backgroundColor: ['rgba(16,185,129,0.8)', 'rgba(239,68,68,0.8)', 'rgba(245,158,11,0.8)'],
+        borderColor: 'var(--card)',
+        borderWidth: 3,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { padding: 12, boxWidth: 12 } } },
+      cutout: '60%',
+    }
+  });
+}
+
+// ── Rating Distribution Bar ──
+function buildRatingDistChart() {
+  const counts = [0,0,0,0,0];
+  reviews.forEach(r => { if (r.rating >= 1 && r.rating <= 5) counts[r.rating-1]++; });
+
+  new Chart(document.getElementById('ratingDistChart'), {
+    type: 'bar',
+    data: {
+      labels: ['1★','2★','3★','4★','5★'],
+      datasets: [{
+        label: 'Reviews',
+        data: counts,
+        backgroundColor: [
+          'rgba(239,68,68,0.7)',
+          'rgba(245,158,11,0.55)',
+          'rgba(245,158,11,0.7)',
+          'rgba(16,185,129,0.55)',
+          'rgba(16,185,129,0.8)',
+        ],
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: 'rgba(148,163,184,0.08)' }, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+}
+
+// ── Timeline Line Chart ──
+function buildTimelineChart() {
+  const monthly = {};
+  reviews.forEach(r => {
+    const d = r.timestamp?.toDate ? r.timestamp.toDate() : new Date();
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    monthly[key] = (monthly[key] || 0) + 1;
+  });
+  const sorted = Object.entries(monthly).sort(([a],[b]) => a.localeCompare(b));
+  const labels = sorted.map(([k]) => {
+    const [y,m] = k.split('-');
+    return new Date(y,m-1).toLocaleDateString('en-IN',{month:'short',year:'2-digit'});
+  });
+
+  new Chart(document.getElementById('timelineChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Reviews',
+        data: sorted.map(([,v]) => v),
+        borderColor: AMBER,
+        backgroundColor: 'rgba(245,158,11,0.08)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: AMBER,
+        pointRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: 'rgba(148,163,184,0.08)' }, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+}
+
+// ── Complaints Table ──
+function buildComplaintsTable() {
+  const map = {};
+  reviews.forEach(r => {
+    if (!r.insuranceCompany) return;
+    const c = r.insuranceCompany;
+    if (!map[c]) map[c] = { count:0, ratingSum:0, rejected:0, negative:0 };
+    map[c].count++;
+    map[c].ratingSum   += r.rating || 0;
+    if (r.claimStatus === 'Rejected')                     map[c].rejected++;
+    if (r.sentiment?.toLowerCase() === 'negative')        map[c].negative++;
+  });
+
+  const rows = Object.entries(map)
+    .map(([name, d]) => ({
+      name,
+      count:    d.count,
+      avgRating:(d.ratingSum / d.count).toFixed(1),
+      rejected: d.rejected,
+      negPct:   ((d.negative / d.count) * 100).toFixed(0),
+    }))
+    .sort((a,b) => b.rejected - a.rejected || b.negPct - a.negPct)
+    .slice(0, 10);
+
+  const tbody = document.getElementById('complaintsTable');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--slate);padding:32px;">No data yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map((r, i) => {
+    const rankCls = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+    const barW    = Math.round((r.avgRating / 5) * 100);
+    const negColor= parseInt(r.negPct) >= 60 ? 'var(--danger)' : parseInt(r.negPct) >= 35 ? 'var(--amber)' : 'var(--success)';
+    return `
+    <tr>
+      <td><span class="rank-badge ${rankCls}">${i+1}</span></td>
+      <td style="font-weight:600;max-width:180px;">${r.name}</td>
+      <td>${r.count}</td>
+      <td>
+        <div class="rating-bar-wrap">
+          <span style="min-width:28px;font-weight:600;color:var(--amber)">${r.avgRating}</span>
+          <div class="rating-bar-track">
+            <div class="rating-bar-fill" style="width:${barW}%"></div>
+          </div>
+        </div>
+      </td>
+      <td style="color:var(--danger);font-weight:600;">${r.rejected}</td>
+      <td style="color:${negColor};font-weight:600;">${r.negPct}%</td>
+    </tr>`;
+  }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', loadDashboard);
+</script>
+</body>
+</html>
