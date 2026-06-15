@@ -9,6 +9,15 @@
 
 InsureVoice is a web-based platform designed to bring transparency to India's insurance ecosystem by enabling customers to share authentic reviews about their insurance experiences. The platform uses AI-powered Natural Language Processing (NLP) to automatically classify review sentiments as Positive, Negative, or Neutral. It provides verified review badges for reviews with uploaded proof documents, real-time analytics dashboards, and smart search/filter capabilities — helping consumers make informed insurance decisions beyond promotional content.
 
+
+## 🚀 Live Demo
+
+🌐 Frontend: https://playful-cannoli-1cc235.netlify.app/
+
+📂 GitHub Repository: https://github.com/LMR09/InsureVoice
+
+⚙️ Backend API: https://insurevoice.onrender.com/
+
 ---
 
 ## 🔥 Problem Statement
@@ -212,51 +221,98 @@ Open `index.html` in your browser directly, or use Live Server (VS Code extensio
 
 ---
 
-## 🌐 Deployment
+## 🌐 Live Deployment
 
-### Frontend — Firebase Hosting (Free)
+### Frontend (Netlify)
+
+The InsureVoice frontend is deployed and accessible at:
+
+**Live Demo:**
+https://playful-cannoli-1cc235.netlify.app/
+
+### Backend API (Render)
+
+The Python Flask Sentiment Analysis API is deployed on Render:
+
+**API Endpoint:**
+https://insurevoice.onrender.com/
+
+### Available API Routes
+
+#### Health Check
+
+GET
 
 ```bash
-# Install Firebase CLI
-npm install -g firebase-tools
-
-# Login
-firebase login
-
-# Initialize (from project root)
-firebase init hosting
-# → Select your project
-# → Public directory: . (current directory)
-# → Single-page app: No
-# → Overwrite index.html: No
-
-# Deploy
-firebase deploy --only hosting
+https://insurevoice.onrender.com/
 ```
 
-Your site will be live at: `https://YOUR_PROJECT_ID.web.app`
+Response:
+
+```json
+{
+  "status": "success",
+  "message": "InsureVoice Sentiment API Running"
+}
+```
+
+#### Sentiment Analysis
+
+POST
+
+```bash
+https://insurevoice.onrender.com/analyze
+```
+
+Request Body:
+
+```json
+{
+  "text": "Excellent customer service and quick claim settlement."
+}
+```
+
+Response:
+
+```json
+{
+  "sentiment": "Positive",
+  "score": 0.8
+}
+```
 
 ---
 
-### Python Backend — Render.com (Free)
+## 🚀 Deployment Architecture
 
-1. Push your code to GitHub
-2. Go to [render.com](https://render.com) → **New Web Service**
-3. Connect your GitHub repo
-4. Configure:
-   - **Root Directory:** `backend`
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `gunicorn app:app`
-   - **Environment:** Python 3
-5. Click **Create Web Service**
+Frontend (HTML, CSS, JavaScript)
+↓
+Netlify Hosting
+↓
+Firebase Authentication
+↓
+Cloud Firestore Database
+↓
+Render Hosted Python API
+↓
+AI-Based Sentiment Analysis
 
-After deployment, copy the Render URL (e.g. `https://insure-voice-api.onrender.com`) and update the frontend API calls in `review.html`:
+---
 
-```javascript
-// Change this line in review.html:
-const res = await fetch('https://insurevoice.onrender.com/analyze', ...);
-// To:
-const res = await fetch('https://insure-voice-api.onrender.com/analyze', ...);
+## 🔗 Project Links
+
+### Live Application
+
+https://playful-cannoli-1cc235.netlify.app/
+
+### GitHub Repository
+
+https://github.com/LMR09/InsureVoice
+
+### Backend API
+
+https://insurevoice.onrender.com/
+
 ```
 
 ---
