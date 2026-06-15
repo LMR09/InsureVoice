@@ -239,7 +239,7 @@ async function analyzeSentimentLive(text) {
 
   // Try Python backend first — silently fall back if not running
   try {
-    const res = await fetch('http://localhost:5000/analyze', {
+    const res = await fetch('https://insurevoice.onrender.com/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
@@ -330,7 +330,7 @@ document.getElementById('reviewForm').addEventListener('submit', async (e) => {
     // Get sentiment from backend or fall back to client keywords
     let sentiment = 'neutral', polarity = 0, subjectivity = 0;
     try {
-      const res = await fetch('http://localhost:5000/analyze', {
+      const res = await fetch('https://insurevoice.onrender.com/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),

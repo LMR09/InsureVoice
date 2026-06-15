@@ -178,11 +178,11 @@ python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptr
 python app.py
 ```
 
-The API will be live at: `http://localhost:5000`
+The API will be live at: `https://insurevoice.onrender.com/analyze`
 
 Test it:
 ```bash
-curl -X POST http://localhost:5000/analyze \
+curl -X POST https://insurevoice.onrender.com/analyze \
   -H "Content-Type: application/json" \
   -d '{"text": "Claim was rejected without any valid reason. Very frustrating."}'
 ```
@@ -254,7 +254,7 @@ After deployment, copy the Render URL (e.g. `https://insure-voice-api.onrender.c
 
 ```javascript
 // Change this line in review.html:
-const res = await fetch('http://localhost:5000/analyze', ...);
+const res = await fetch('https://insurevoice.onrender.com/analyze', ...);
 // To:
 const res = await fetch('https://insure-voice-api.onrender.com/analyze', ...);
 ```
