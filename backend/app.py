@@ -35,6 +35,12 @@ def health():
     """Health check — used by frontend to test if backend is running."""
     return jsonify({"status": "ok", "service": "InsureVoice Sentiment API"}), 200
 
+@app.route("/")
+def home():
+    return {
+        "status": "success",
+        "message": "InsureVoice Sentiment API Running"
+    }
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
